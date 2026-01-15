@@ -1,56 +1,118 @@
-
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>Leaflet KML Example</title>
+  <title>Leaflet Two KML Layers with Styled Toggle</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 
   <style>
-    #map {
-      height: 600px;
-      width: 100%;
+    #map { height: 600px; width: 100%; }
+    .kml-toggle {
+      background: #fff;
+      padding: 8px 10px;
+      border-radius: 4px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+      font: 14px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    }
+    .kml-toggle label {
+      display: block;
+      margin-bottom: 6px;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
-  <h2>Leaflet Map with KML Boundary</h2>
+ KML Boundaries</h2>
   <div id="map"></div>
 
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <!-- Leaflet Omnivore for KML -->
+  <!-- Leaflet Omnivore -->
   <script src="https://unpkg.com/leaflet-omnivore/leaflet-omnivore.min.js"></script>
 
   <script>
     // Initialize the map
-    var map = L.map('map').setView([53.505, -3.0], 9); // Center on UK
+    var map = L.map('map').setView([51.505, -0.09], 6); // Center on UK
 
-    // Add OpenStreetMap tiles
+    // Add OpenStreetMap tile layer
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    var customLayer = L.geoJson(null, { style: function(feature) { return { weight: 0 };  }  });
+    // --- Styling helpers ---
+    const greenStyle = {
+      stroke: false,
+      fillColor: '#00AA00',
+      fillOpacity: 0.5
+    };
 
+    const blueStyle = {
+      stroke: false,
+      fillColor: '#0066FF',
+      fillOpacity: 0.5
+    };
 
-    // Load KML file (replace with your KML file URL or path)
-    var kmlLayer = omnivore.kml('test.kml',null,customLayer)
-      .on('ready', function() {
-        map.fitBounds(kmlLayer.getBounds()); // Zoom to KML bounds
-      })
-      .addTo(map);
+    // Create styled GeoJSON targets
+    const target1 = L.geoJson(null, { style: greenStyle });
+    const target2 = L.geoJson(null, { style: blueStyle });
+
+    // Load KML into targets
+    omnivore.kml('ne_wales_mobile.kml', null, target1);
+    omnivore.kml('ne_wales_indoor.kml', null, target2);
+
+    // Add first boundary by default
+    target1.addTo(map);
+
+    // Create a Leaflet control for switching between layers
+    var ToggleControl = L.Control.extend({
+      options: { position: 'topright' },
+      onAdd: function() {
+        var container = L.DomUtil.create('div', 'kml-toggle leaflet-control');
+
+        L.DomEvent.disableClickPropagation(container);
+        L.DomEvent.disableScrollPropagation(container);
+
+        var label1 = document.createElement('label');
+        var radio1 = document.createElement('input');
+        radio1.type = 'radio';
+        radio1.name = 'kmlToggle';
+        radio1.checked = true;
+        label1.appendChild(radio1);
+        label1.appendChild(document.createTextNode('Show mobile (Green)'));
+
+        var label2 = document.createElement('label');
+        var radio2 = document.createElement('input');
+        radio2.type = 'radio';
+        radio2.name = 'kmlToggle';
+        label2.appendChild(radio2);
+        label2.appendChild(document.createTextNode('Show indoor (Blue)'));
+
+        container.appendChild(label1);
+        container.appendChild(label2);
+
+        // Event listeners (no fitBounds now)
+        radio1.addEventListener('change', function() {
+          if (this.checked) {
+            if (map.hasLayer(target2)) map.removeLayer(target2);
+            if (!map.hasLayer(target1)) map.addLayer(target1);
+          }
+        });
+
+        radio2.addEventListener('change', function() {
+          if (this.checked) {
+            if (map.hasLayer(target1)) map.removeLayer(target1);
+            if (!map.hasLayer(target2)) map.addLayer(target2);
+          }
+        });
+
+        return container;
+      }
+    });
+
+    map.addControl(new ToggleControl());
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
