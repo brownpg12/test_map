@@ -38,7 +38,7 @@
 
 
     // Load KML file (replace with your KML file URL or path)
-    var kmlLayer = omnivore.kml('/NE Wales and W Cheshire_10D_99PL_50%T_Mobile_20251218.kml',null,customLayer)
+    var kmlLayer = omnivore.kml('NE Wales and W Cheshire_10D_99PL_50%T_Mobile_20251218.kml',null,customLayer)
       .on('ready', function() {
         map.fitBounds(kmlLayer.getBounds()); // Zoom to KML bounds
       })
@@ -46,6 +46,7 @@
   </script>
 </body>
 </html>
+
 
 
 
