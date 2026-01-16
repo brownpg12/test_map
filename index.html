@@ -24,7 +24,7 @@
     }
 
     .kml-toggle label {
-      background: #fff;
+	background: #fff;
       display: block;
       margin-bottom: 6px;
       cursor: pointer;
@@ -62,17 +62,29 @@
       fillOpacity: 0.5
     };
 
+    // NEW red polygon style
+    const redPolyStyle = {
+      stroke: true,
+      color: '#FF0000',
+      weight: 2,
+      fillOpacity: 0.0
+    };
+
+
     // Create styled GeoJSON targets
     const target1 = L.geoJson(null, { style: greenStyle });
     const target2 = L.geoJson(null, { style: blueStyle });
+    const target3 = L.geoJson(null, { style: redPolyStyle });  // NEW
 
     // Load KML into targets
     omnivore.kml('ne_wales_mobile.kml', null, target1);
     omnivore.kml('ne_wales_indoor.kml', null, target2);
-
+    omnivore.kml('NE_Wales_and_W_Cheshire_area_boundary.KML', null, target3);  // NEW polygon KML
+	
     // Add first boundary by default
     target1.addTo(map);
-
+    map.addLayer(target3);
+	
     // Create a Leaflet control for switching between layers
     var ToggleControl = L.Control.extend({
       options: { position: 'topright' },
@@ -123,4 +135,3 @@
   </script>
 </body>
 </html>
-
